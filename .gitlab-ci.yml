@@ -1,0 +1,5 @@
+build_image:
+  script:
+    - docker build -t uclnlp_module .
+    - docker tag uclnlp_module:latest registry.gitlab.com/nunet/fake-news-detection/talos/uclnlp_module:latest
+    - docker push registry.gitlab.com/nunet/fake-news-detection/talos/uclnlp_module:latest
