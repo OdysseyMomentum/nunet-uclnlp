@@ -61,3 +61,5 @@ RUN python3.5 -m grpc_tools.protoc \
               --python_out=. \
               --grpc_python_out=. \
               ./service_spec/uclnlpfnc.proto
+
+ENTRYPOINT ["python3.5", "/root/uclnlp/pred.py", "serve", "grpc", "13221"]
