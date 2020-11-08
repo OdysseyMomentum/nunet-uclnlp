@@ -1,6 +1,7 @@
 build_image:
   script:
     - docker build -t uclnlp_module .
+    - docker tag registry.gitlab.com/nunet/fake-news-detection/uclnlp/uclnlp_module:latest registry.gitlab.com/nunet/fake-news-detection/uclnlp/uclnlp_module:previous
     - docker tag uclnlp_module:latest registry.gitlab.com/nunet/fake-news-detection/uclnlp/uclnlp_module:latest
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD registry.gitlab.com
     - docker push registry.gitlab.com/nunet/fake-news-detection/uclnlp/uclnlp_module:latest
