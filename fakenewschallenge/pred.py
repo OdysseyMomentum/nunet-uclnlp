@@ -29,6 +29,8 @@ sys.path.append("./service_spec")
 import uclnlpfnc_pb2 as pb2
 import uclnlpfnc_pb2_grpc as pb2_grpc
 
+import os
+
 mode = None
 serve_mode = None
 serve_port = None
@@ -37,6 +39,10 @@ if len(sys.argv) == 4:
     mode = sys.argv[1]
     serve_mode = sys.argv[2]
     serve_port = int(sys.argv[3])
+elif len(sys.argv) == 3:
+    mode = sys.argv[1]
+    serve_mode = sys.argv[2]
+    serve_port = os.getenv("NOMAD_PORT_UCL_GRPC_PORT")
 else:
     # Prompt for mode
     mode = input('mode (serve / load / train)? ')
