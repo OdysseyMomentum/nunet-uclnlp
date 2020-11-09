@@ -35,11 +35,7 @@ mode = None
 serve_mode = None
 serve_port = None
 
-if len(sys.argv) == 4:
-    mode = sys.argv[1]
-    serve_mode = sys.argv[2]
-    serve_port = int(sys.argv[3])
-elif len(sys.argv) == 3:
+if len(sys.argv) == 3:
     mode = sys.argv[1]
     serve_mode = sys.argv[2]
     serve_port = os.getenv("NOMAD_PORT_UCL_GRPC_PORT")
