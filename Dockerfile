@@ -1,43 +1,34 @@
 FROM ubuntu:18.04
 
-RUN apt update; apt upgrade -y
+ARG snetd_version
 
-RUN apt install -y vim \
-                   git \
-                   curl \
-                   cmake \
-                   libtool \
-                   autoconf \
-                   python3-dev \
-                   python3-pip \
-		    libudev-dev \
-		    build-essential \
-		    libusb-1.0.0-dev \
-		    software-properties-common
+ENV SINGNET_REPOS=/opt/singnet
 
-RUN python3 -m pip install -U pip
-RUN python3 -m pip install numpy==1.11.3 \
-			   scikit-learn==0.18.1 \
-			   scipy==0.18.1 \
-			   tensorflow==0.12.1 \
-			   protobuf \
-			   grpcio \
-			   grpcio-tools \
-			   snet-cli
+RUN mkdir -p ${SINGNET_REPOS}
 
-#RUN git clone https://github.com/uclnlp/fakenewschallenge /root/uclnlp
+RUN apt-get update && \
+	apt-get install -y \
+	curl \
+	nano \
+	git \
+	wget 
 
-COPY . uclnlp/
-WORKDIR uclnlp/fakenewschallenge
+RUN apt-get install -y python3 python3-pip
 
-#RUN git clone -b snet-service https://github.com/dagims/fakenewschallenge /root/uclnlp
+# SNET Daemon
+RUN SNETD_GIT_VERSION=`curl -s https://api.github.com/repos/singnet/snet-daemon/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")' || echo "v3.1.6"` && \
+    SNETD_VERSION=${snetd_version:-${SNETD_GIT_VERSION}} && \
+    cd /tmp && \
+    wget https://github.com/singnet/snet-daemon/releases/download/${SNETD_VERSION}/snet-daemon-${SNETD_VERSION}-linux-amd64.tar.gz && \
+    tar -xvf snet-daemon-${SNETD_VERSION}-linux-amd64.tar.gz && \
+    mv snet-daemon-${SNETD_VERSION}-linux-amd64/snetd /usr/bin/snetd && \
+    rm -rf snet-daemon-*
 
-#WORKDIR /root/uclnlp
+# service
+COPY . /${SINGNET_REPOS}/uclnlp
 
-RUN python3 -m grpc_tools.protoc \
-              -I. \
-              --python_out=. \
-              --grpc_python_out=. \
-              ./service_spec/uclnlpfnc.proto
+RUN cd ${SINGNET_REPOS}/uclnlp && \
+	pip3 install -r requirements.txt && \
+	sh buildproto.sh
 
-ENTRYPOINT ["python3", "/uclnlp/fakenewschallenge/pred.py", "serve", "grpc", "13221"]
+WORKDIR ${SINGNET_REPOS}/uclnlp
