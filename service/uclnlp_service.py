@@ -26,8 +26,8 @@ import grpc
 import time
 from concurrent import futures
 sys.path.append("./service_spec")
-import uclnlpfnc_pb2 as pb2
-import uclnlpfnc_pb2_grpc as pb2_grpc
+import uclnlp_service_pb2 as pb2
+import uclnlp_service_pb2_grpc as pb2_grpc
 
 mode = None
 serve_mode = None

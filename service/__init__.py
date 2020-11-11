@@ -1,6 +1,6 @@
 registry = {
 	"uclnlp_service" : {
-		"grpc": 7003,
+		"grpc": 7007,
 	},
 }
 

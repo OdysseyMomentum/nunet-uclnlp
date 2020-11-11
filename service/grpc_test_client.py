@@ -2,8 +2,8 @@ import sys
 import grpc
 
 sys.path.append("./service_spec")
-import uclnlpfnc_pb2 as pb2
-import uclnlpfnc_pb2_grpc as pb2_grpc
+import uclnlp_service_pb2 as pb2
+import uclnlp_service_pb2_grpc as pb2_grpc
 
 
 def get_stance(channel):
