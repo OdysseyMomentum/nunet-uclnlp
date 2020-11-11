@@ -2,8 +2,8 @@ import sys
 import grpc
 
 # import the generated classes
-import service.fakenewschallenge.service_spec.uclnlpfnc_pb2_grpc as grpc_ex_grpc
-import service.fakenewschallenge.service_spec.uclnlpfnc_pb2 as grpc_ex_pb2
+import service.service_spec.uclnlp_service_pb2_grpc as pb2_grpc
+import service.service_spec.uclnlp_service_pb2 as pb2
 
 from service import registry
 
@@ -73,12 +73,12 @@ if __name__ == "__main__":
 
 		# Open a gRPC channel
 		channel = grpc.insecure_channel("{}".format(endpoint))
-		stub = grpc_ex_pb2.UCLNLPStanceClassificationStub(channel)
-		inp = grpc_ex_pb2.InputData(headline=headline, body=body)
+		stub = pb2_grpc.UCLNLPStanceClassificationStub(channel)
+		inp = pb2.InputData(headline=headline, body=body)
 
 		if grpc_method == "stance_classify":
 			response = stub.stance_classify(inp)
-			print(response.stance)
+			print(response)
 		else:
 			print("Invalid method!")
 			exit(1)
