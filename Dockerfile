@@ -31,3 +31,4 @@ RUN pip3 install -r requirements.txt
 
 RUN sh buildproto.sh
 
+CMD ["python3", "run_uclnlp_service.py", "--daemon-config", "snetd.config.json"]
