@@ -39,5 +39,3 @@ RUN python3 -m grpc_tools.protoc \
               --python_out=. \
               --grpc_python_out=. \
               ./service_spec/uclnlpfnc.proto
-
-ENTRYPOINT ["python3", "/uclnlp/fakenewschallenge/pred.py", "serve", "grpc", "13221"]
