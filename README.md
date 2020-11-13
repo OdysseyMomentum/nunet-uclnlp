@@ -4,6 +4,8 @@ Snet Marketplace service for [UCLNLP FNC-1 Submission](https://mr.cs.ucl.ac.uk/)
 
 ## Setup
 
+	# build snet_publish_service image if it doesn't exist
+	docker build -t snet_publish_service https://github.com/singnet/dev-portal.git#master:/tutorials/docker
 
 	docker build -t uclnlp_snet .
 	
