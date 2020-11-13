@@ -1,22 +1,16 @@
-# UCLNLP FNC-1 Submission
+# UCLFNS Snet service 
 
-This folder contains a dockerfile and the modified [uclnlp](https://mr.cs.ucl.ac.uk/)'s submission to
-the 2017 [Fake News Challenge](http://www.fakenewschallenge.org/). The original
-code can be found here on [Github](https://github.com/uclnlp/fakenewschallenge).
-The readme there explains enough about how it works.
+Snet Marketplace service for [UCLNLP FNC-1 Submission](https://mr.cs.ucl.ac.uk/)
 
 ## Setup
 
-While in this directory, run:
-```
-    docker build -t fnc:uclnlp . 
-```
 
-This will build the docker image. Next, start the container with:
-```
-    docker run -d --name fnc-uclnlp -p 13221:13221 fnc:uclnlp
-```
+	docker build -t uclnlp_snet .
+	
+	# map snet and etcd directory to container
+	docker run -v $HOME/.snet/:/root/.snet/ -v $HOME/.snet/etcd/uclnlp-service/:/opt/singnet/etcd/ -it uclnlp_snet bash
 
-This will host a grpc service in the container accessible through port 13221. To
-test the service there's an example script
-[grpc_test_client.py](./fakenewschallenge/grpc_test_client.py)
+	# snet request to service (using snet or the test script)
+	snet client call odyssey-org uclnlp-service default_group stance_classify '{"headline":"news_headline","body":"news_body"}' 
+	
+	python3 test_uclnlp_service.py

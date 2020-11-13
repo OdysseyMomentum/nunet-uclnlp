@@ -1,41 +1,34 @@
-FROM ubuntu:18.04
+FROM snet_publish_service
 
-RUN apt update; apt upgrade -y
+RUN apt-get update && \
+        apt-get install -y \
+        curl \
+        vim \
+        nano \
+        git \
+        wget
 
-RUN apt install -y vim \
-                   git \
-                   curl \
-                   cmake \
-                   libtool \
-                   autoconf \
-                   python3-dev \
-                   python3-pip \
-		    libudev-dev \
-		    build-essential \
-		    libusb-1.0.0-dev \
-		    software-properties-common
+RUN apt-get install -y python3 python3-pip
 
-RUN python3 -m pip install -U pip
-RUN python3 -m pip install numpy==1.11.3 \
-			   scikit-learn==0.18.1 \
-			   scipy==0.18.1 \
-			   tensorflow==0.12.1 \
-			   protobuf \
-			   grpcio \
-			   grpcio-tools \
-			   snet-cli
+ENV SINGNET_REPOS=/opt/singnet
+ENV ORGANIZATION_ID="odyssey-org"
+ENV ORGANIZATION_NAME="odyssey"
+ENV SERVICE_ID="uclnlp-service"
+ENV SERVICE_NAME="UCLNLP Service"
+ENV SERVICE_IP="195.201.197.25"
+ENV SERVICE_PORT="7007"
+ENV DAEMON_PORT="7000"
+ENV DAEMON_HOST="0.0.0.0"
+ENV USER_ID="Amante"
 
-#RUN git clone https://github.com/uclnlp/fakenewschallenge /root/uclnlp
+EXPOSE 7000:7000
+EXPOSE 7007:7007
 
-COPY . uclnlp/
-WORKDIR uclnlp/fakenewschallenge
+COPY . /${SINGNET_REPOS}/uclnlp
+WORKDIR /${SINGNET_REPOS}/uclnlp
 
-#RUN git clone -b snet-service https://github.com/dagims/fakenewschallenge /root/uclnlp
+RUN pip3 install -r requirements.txt
 
-#WORKDIR /root/uclnlp
+RUN sh buildproto.sh
 
-RUN python3 -m grpc_tools.protoc \
-              -I. \
-              --python_out=. \
-              --grpc_python_out=. \
-              ./service_spec/uclnlpfnc.proto
+CMD ["python3", "run_uclnlp_service.py", "--daemon-config", "snetd.config.json"]

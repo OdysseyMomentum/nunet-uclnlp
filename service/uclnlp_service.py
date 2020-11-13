@@ -14,7 +14,7 @@
 
 
 # Import relevant packages and modules
-from util import *
+from service.util import *
 import random
 import tensorflow as tf
 
@@ -25,34 +25,18 @@ import sys
 import grpc
 import time
 from concurrent import futures
-sys.path.append("./service_spec")
-import uclnlpfnc_pb2 as pb2
-import uclnlpfnc_pb2_grpc as pb2_grpc
+#sys.path.append("./service_spec")
+import service.service_spec.uclnlp_service_pb2 as pb2
+import service.service_spec.uclnlp_service_pb2_grpc as pb2_grpc
 
-import os
-
-mode = None
-serve_mode = None
-serve_port = None
-
-if len(sys.argv) == 4:
-    mode = sys.argv[1]
-    serve_mode = sys.argv[2]
-    serve_port = int(sys.argv[3])
-elif len(sys.argv) == 3:
-    mode = sys.argv[1]
-    serve_mode = sys.argv[2]
-    serve_port = os.getenv("NOMAD_PORT_UCL_GRPC_PORT")
-else:
-    # Prompt for mode
-    mode = input('mode (serve / load / train)? ')
+serve_port = 7007
 
 # Set file names
-file_train_instances = "train_stances.csv"
-file_train_bodies = "train_bodies.csv"
-file_test_instances = "test_stances_unlabeled.csv"
-file_test_bodies = "test_bodies.csv"
-file_predictions = 'predictions_test.csv'
+file_train_instances = "service/train_stances.csv"
+file_train_bodies = "service/train_bodies.csv"
+file_test_instances = "service/test_stances_unlabeled.csv"
+file_test_bodies = "service/test_bodies.csv"
+file_predictions = 'service/predictions_test.csv'
 
 
 # Initialise hyperparameters
@@ -168,81 +152,16 @@ def run_server(tf_session):
     return HTTPapi
 
 
-if mode == 'serve':
-    sess = tf.Session()
-    load_model(sess)
-    if serve_port == None:
-        serve_port = 13221
-    if serve_mode == None:
-        serve_mode = input('input (rest / grpc)? ')
-    if serve_mode == 'rest':
-        serve_address = ''
-        server_handler = run_server(sess)
-        httpd = HTTPServer((serve_address, serve_port), server_handler)
-        try:
-            print("Starting Server on port: " + str(serve_port))
-            httpd.serve_forever()
-        except KeyboardInterrupt:
-            print("Exiting....")
-            httpd.server_close()
-    elif serve_mode == 'grpc':
-        grpc_server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-        pb2_grpc.add_UCLNLPStanceClassificationServicer_to_server(GRPCapi(sess), grpc_server)
-        grpc_server.add_insecure_port('[::]:' + str(serve_port))
-        grpc_server.start()
-        print("GRPC Server Started on port: " + str(serve_port))
-        try:
-            while True:
-                time.sleep(10)
-        except KeyboardInterrupt:
-            print("Exiting....")
-            grpc_server.stop(0)
-
-
-# Load model
-if mode == 'load':
-    with tf.Session() as sess:
-        load_model(sess)
-
-        # Predict
-        test_feed_dict = {features_pl: test_set, keep_prob_pl: 1.0}
-        test_pred = sess.run(predict, feed_dict=test_feed_dict)
-        
-        # Save predictions
-        save_predictions(test_pred, file_predictions)
-
-
-# Train model
-if mode == 'train':
-
-    # Define optimiser
-    opt_func = tf.train.AdamOptimizer(learn_rate)
-    grads, _ = tf.clip_by_global_norm(tf.gradients(loss, tf_vars), clip_ratio)
-    opt_op = opt_func.apply_gradients(zip(grads, tf_vars))
-
-    # Perform training
-    with tf.Session() as sess:
-        sess.run(tf.global_variables_initializer())
-
-        for epoch in range(epochs):
-            total_loss = 0
-            indices = list(range(n_train))
-            r.shuffle(indices)
-
-            for i in range(n_train // batch_size_train):
-                batch_indices = indices[i * batch_size_train: (i + 1) * batch_size_train]
-                batch_features = [train_set[i] for i in batch_indices]
-                batch_stances = [train_stances[i] for i in batch_indices]
-
-                batch_feed_dict = {features_pl: batch_features, stances_pl: batch_stances, keep_prob_pl: train_keep_prob}
-                _, current_loss = sess.run([opt_op, loss], feed_dict=batch_feed_dict)
-                total_loss += current_loss
-
-
-        # Predict
-        test_feed_dict = {features_pl: test_set, keep_prob_pl: 1.0}
-        test_pred = sess.run(predict, feed_dict=test_feed_dict)
-
-        # Save predictions
-        save_predictions(test_pred, file_predictions)
-
+sess = tf.Session()
+load_model(sess)
+grpc_server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+pb2_grpc.add_UCLNLPStanceClassificationServicer_to_server(GRPCapi(sess), grpc_server)
+grpc_server.add_insecure_port('[::]:' + str(serve_port))
+grpc_server.start()
+print("GRPC Server Started on port: " + str(serve_port))
+try:
+    while True:
+        time.sleep(10)
+except KeyboardInterrupt:
+    print("Exiting....")
+    grpc_server.stop(0)

@@ -1,9 +1,9 @@
 import sys
 import grpc
 
-sys.path.append("./service_spec")
-import uclnlpfnc_pb2 as pb2
-import uclnlpfnc_pb2_grpc as pb2_grpc
+#sys.path.append("./service_spec")
+import service.service_spec.uclnlp_service_pb2 as pb2
+import service.service_spec.uclnlp_service_pb2_grpc as pb2_grpc
 
 
 def get_stance(channel):
@@ -62,5 +62,5 @@ def get_stance(channel):
     print(res)
 
 
-with grpc.insecure_channel('localhost:13221') as channel:
+with grpc.insecure_channel('localhost:7007') as channel:
     get_stance(channel)
