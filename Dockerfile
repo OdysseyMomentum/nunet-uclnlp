@@ -21,8 +21,8 @@ ENV DAEMON_PORT="7000"
 ENV DAEMON_HOST="0.0.0.0"
 ENV USER_ID="Amante"
 
-EXPOSE 7000:7000
-EXPOSE 7007:7007
+EXPOSE 7000
+EXPOSE 7007
 
 
 RUN wget https://github.com/fullstorydev/grpcurl/releases/download/v1.1.0/grpcurl_1.1.0_linux_x86_64.tar.gz

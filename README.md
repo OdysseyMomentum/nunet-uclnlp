@@ -9,8 +9,12 @@ Snet Marketplace service for [UCLNLP FNC-1 Submission](https://mr.cs.ucl.ac.uk/)
 
 	docker build -t uclnlp_snet .
 	
-	# map snet and etcd directory to container
-	docker run -v $HOME/.snet/:/root/.snet/ -v $HOME/.snet/etcd/uclnlp-service/:/opt/singnet/etcd/ -it uclnlp_snet bash
+	# map daemon and service ports externally
+	docker run -p 7000:7000 -p 7007:7007 -it uclnlp_snet bash
+
+	# uclnlp server
+	python3 run_uclnlp_service.py --daemon-config snetd.config.json
+	python3 run_uclnlp_service.py --no-daemon
 
 	# snet request to service (using snet or the test script)
 	snet client call odyssey-org uclnlp-service default_group stance_classify '{"headline":"news_headline","body":"news_body"}' 
